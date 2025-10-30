@@ -1,19 +1,53 @@
 import React, { useState } from 'react';
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Let Netlify handle the form submission
-    setIsSubmitted(true);
-    
-    // Reset form after 5 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-      // Reset the form
-      e.target.reset();
-    }, 5000);
+    setIsLoading(true);
+
+    try {
+      // REPLACE THIS WITH YOUR ACTUAL FORMSPREE FORM ID
+      const response = await fetch('https://formspree.io/f/mvgvqrlj', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          _subject: `Portfolio Message from ${formData.name}`,
+          _replyto: formData.email
+        }),
+      });
+
+      if (response.ok) {
+        setIsSubmitted(true);
+        setFormData({ name: '', email: '', message: '' });
+        setTimeout(() => setIsSubmitted(false), 5000);
+      } else {
+        alert('Error sending message. Please try again.');
+      }
+    } catch (error) {
+      alert('Error sending message. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -46,40 +80,39 @@ const Contact = () => {
             <div className="success-message">
               <h4>✅ Message Sent Successfully!</h4>
               <p>Thank you for your message. I'll get back to you within 24 hours.</p>
-              <p><strong>Check your spam folder if you don't see my reply!</strong></p>
             </div>
           ) : (
-            <form
-              name="contact"
-              method="POST"
-              data-netlify="true"
-              netlify-honeypot="bot-field"
-              onSubmit={handleSubmit}
-            >
-              <input type="hidden" name="form-name" value="contact" />
-              <p hidden>
-                <label>Don't fill this out: <input name="bot-field" /></label>
-              </p>
-              
+            <form onSubmit={handleSubmit}>
               <input 
                 type="text" 
                 name="name"
                 placeholder="Your Name" 
+                value={formData.name}
+                onChange={handleChange}
                 required 
+                disabled={isLoading}
               />
               <input 
                 type="email" 
                 name="email"
                 placeholder="Your Email" 
+                value={formData.email}
+                onChange={handleChange}
                 required 
+                disabled={isLoading}
               />
               <textarea 
                 name="message"
                 placeholder="Your Message" 
                 rows="5" 
+                value={formData.message}
+                onChange={handleChange}
                 required
+                disabled={isLoading}
               ></textarea>
-              <button type="submit">Send Message</button>
+              <button type="submit" disabled={isLoading}>
+                {isLoading ? '📤 Sending...' : '📨 Send Message'}
+              </button>
             </form>
           )}
         </div>
