@@ -1,54 +1,17 @@
 import React, { useState } from 'react';
 
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      // USING YOUR FORMSPREE FORM ID
-      const response = await fetch('https://formspree.io/f/mvgvqrlj', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
-          _subject: `Portfolio Message from ${formData.name}`,
-          _replyto: formData.email
-        }),
-      });
-
-      if (response.ok) {
-        setIsSubmitted(true);
-        setFormData({ name: '', email: '', message: '' });
-        setTimeout(() => setIsSubmitted(false), 5000);
-      } else {
-        alert('Error sending message. Please try again or email me directly at ergetekagn@gmail.com');
-      }
-    } catch (error) {
-      console.error('Form submission error:', error);
-      alert('Network error. Please email me directly at ergetekagn@gmail.com');
-    } finally {
-      setIsLoading(false);
-    }
+  // This will handle the form submission and show success message
+  const handleFormSubmit = (e) => {
+    // Let the form submit naturally to Formspree
+    // We'll show success message after a delay to account for the redirect
+    setTimeout(() => {
+      setIsSubmitted(true);
+      // Reset after 5 seconds
+      setTimeout(() => setIsSubmitted(false), 5000);
+    }, 1000);
   };
 
   return (
@@ -81,40 +44,33 @@ const Contact = () => {
             <div className="success-message">
               <h4>✅ Message Sent Successfully!</h4>
               <p>Thank you for your message. I'll get back to you within 24 hours.</p>
-              <p><strong>Check your Formspree dashboard for the message.</strong></p>
+              <p><strong>Check your email for confirmation!</strong></p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit}>
+            <form
+              action="https://formspree.io/f/mvgvqrlj"
+              method="POST"
+              onSubmit={handleFormSubmit}
+            >
               <input 
                 type="text" 
                 name="name"
                 placeholder="Your Name" 
-                value={formData.name}
-                onChange={handleChange}
                 required 
-                disabled={isLoading}
               />
               <input 
                 type="email" 
                 name="email"
                 placeholder="Your Email" 
-                value={formData.email}
-                onChange={handleChange}
                 required 
-                disabled={isLoading}
               />
               <textarea 
                 name="message"
                 placeholder="Your Message" 
                 rows="5" 
-                value={formData.message}
-                onChange={handleChange}
                 required
-                disabled={isLoading}
               ></textarea>
-              <button type="submit" disabled={isLoading}>
-                {isLoading ? '📤 Sending...' : '📨 Send Message'}
-              </button>
+              <button type="submit">Send Message</button>
             </form>
           )}
         </div>
