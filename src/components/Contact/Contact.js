@@ -1,15 +1,64 @@
 import React, { useState } from 'react';
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // This will handle the form submission and show success message
-  const handleFormSubmit = (e) => {
-    // Let the form submit naturally to Formspree
-    // We'll show success message after a delay to account for the redirect
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    // Create a hidden iframe to handle the form submission
+    const iframe = document.createElement('iframe');
+    iframe.name = 'formspree-iframe';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    // Create a form element and submit it to the iframe
+    const form = document.createElement('form');
+    form.action = 'https://formspree.io/f/mvgvqrlj';
+    form.method = 'POST';
+    form.target = 'formspree-iframe';
+
+    // Add form fields
+    const fields = [
+      { name: 'name', value: formData.name },
+      { name: 'email', value: formData.email },
+      { name: 'message', value: formData.message }
+    ];
+
+    fields.forEach(field => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = field.name;
+      input.value = field.value;
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+
+    // Clean up
     setTimeout(() => {
+      document.body.removeChild(form);
+      document.body.removeChild(iframe);
+      
       setIsSubmitted(true);
-      // Reset after 5 seconds
+      setFormData({ name: '', email: '', message: '' });
+      setIsLoading(false);
+      
       setTimeout(() => setIsSubmitted(false), 5000);
     }, 1000);
   };
@@ -29,13 +78,6 @@ const Contact = () => {
           <div className="contact-item">
             <strong>Location:</strong> Addis Ababa, Ethiopia
           </div>
-          <div className="reference">
-            <h4>Reference</h4>
-            <p><strong>Tewodros Mengistu</strong></p>
-            <p>Amhara Bank Director - Information Systems Security</p>
-            <p>Phone: +251 91898565</p>
-            <p>Email: teddycbe@gmail.com</p>
-          </div>
         </div>
         
         <div className="contact-form">
@@ -44,33 +86,39 @@ const Contact = () => {
             <div className="success-message">
               <h4>✅ Message Sent Successfully!</h4>
               <p>Thank you for your message. I'll get back to you within 24 hours.</p>
-              <p><strong>Check your email for confirmation!</strong></p>
             </div>
           ) : (
-            <form
-              action="https://formspree.io/f/mvgvqrlj"
-              method="POST"
-              onSubmit={handleFormSubmit}
-            >
+            <form onSubmit={handleSubmit}>
               <input 
                 type="text" 
                 name="name"
                 placeholder="Your Name" 
+                value={formData.name}
+                onChange={handleChange}
                 required 
+                disabled={isLoading}
               />
               <input 
                 type="email" 
                 name="email"
                 placeholder="Your Email" 
+                value={formData.email}
+                onChange={handleChange}
                 required 
+                disabled={isLoading}
               />
               <textarea 
                 name="message"
                 placeholder="Your Message" 
                 rows="5" 
+                value={formData.message}
+                onChange={handleChange}
                 required
+                disabled={isLoading}
               ></textarea>
-              <button type="submit">Send Message</button>
+              <button type="submit" disabled={isLoading}>
+                {isLoading ? '📤 Sending...' : '📨 Send Message'}
+              </button>
             </form>
           )}
         </div>
