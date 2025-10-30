@@ -1,35 +1,19 @@
 import React, { useState } from 'react';
 
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
   const [isSubmitted, setIsSubmitted] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Netlify Forms will handle the submission automatically
-    // We just need to show success and reset form
+    // Let Netlify handle the form submission
     setIsSubmitted(true);
     
-    // Reset form after 3 seconds
+    // Reset form after 5 seconds
     setTimeout(() => {
       setIsSubmitted(false);
-      setFormData({
-        name: '',
-        email: '',
-        message: ''
-      });
-    }, 3000);
+      // Reset the form
+      e.target.reset();
+    }, 5000);
   };
 
   return (
@@ -61,43 +45,38 @@ const Contact = () => {
           {isSubmitted ? (
             <div className="success-message">
               <h4>✅ Message Sent Successfully!</h4>
-              <p>Thank you for your message. I'll get back to you soon.</p>
+              <p>Thank you for your message. I'll get back to you within 24 hours.</p>
+              <p><strong>Check your spam folder if you don't see my reply!</strong></p>
             </div>
           ) : (
-            <form 
-              name="contact" 
-              method="POST" 
+            <form
+              name="contact"
+              method="POST"
               data-netlify="true"
-              onSubmit={handleSubmit}
               netlify-honeypot="bot-field"
+              onSubmit={handleSubmit}
             >
               <input type="hidden" name="form-name" value="contact" />
-              <p className="hidden">
-                <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+              <p hidden>
+                <label>Don't fill this out: <input name="bot-field" /></label>
               </p>
               
               <input 
                 type="text" 
                 name="name"
                 placeholder="Your Name" 
-                value={formData.name}
-                onChange={handleChange}
                 required 
               />
               <input 
                 type="email" 
                 name="email"
                 placeholder="Your Email" 
-                value={formData.email}
-                onChange={handleChange}
                 required 
               />
               <textarea 
                 name="message"
                 placeholder="Your Message" 
                 rows="5" 
-                value={formData.message}
-                onChange={handleChange}
                 required
               ></textarea>
               <button type="submit">Send Message</button>
