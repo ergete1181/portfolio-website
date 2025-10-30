@@ -21,7 +21,7 @@ const Contact = () => {
     setIsLoading(true);
 
     try {
-      // REPLACE THIS WITH YOUR ACTUAL FORMSPREE FORM ID
+      // USING YOUR FORMSPREE FORM ID
       const response = await fetch('https://formspree.io/f/mvgvqrlj', {
         method: 'POST',
         headers: {
@@ -41,10 +41,11 @@ const Contact = () => {
         setFormData({ name: '', email: '', message: '' });
         setTimeout(() => setIsSubmitted(false), 5000);
       } else {
-        alert('Error sending message. Please try again.');
+        alert('Error sending message. Please try again or email me directly at ergetekagn@gmail.com');
       }
     } catch (error) {
-      alert('Error sending message. Please try again.');
+      console.error('Form submission error:', error);
+      alert('Network error. Please email me directly at ergetekagn@gmail.com');
     } finally {
       setIsLoading(false);
     }
@@ -80,6 +81,7 @@ const Contact = () => {
             <div className="success-message">
               <h4>✅ Message Sent Successfully!</h4>
               <p>Thank you for your message. I'll get back to you within 24 hours.</p>
+              <p><strong>Check your Formspree dashboard for the message.</strong></p>
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
